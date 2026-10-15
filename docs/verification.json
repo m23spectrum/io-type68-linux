@@ -1,0 +1,23 @@
+{
+  "version": "0.1.0",
+  "unit_tests": {
+    "passed": 13,
+    "hardware": "simulated",
+    "protocol": 8,
+    "installer": 5
+  },
+  "isolated_dbus": "passed with simulated HID",
+  "qml_controls": "instantiated offscreen",
+  "standalone_panel_ui": "not visually tested",
+  "installer": "staged only",
+  "wheel": "built",
+  "live_cli": {
+    "connected": true,
+    "firmware": "1.37",
+    "backend": "existing installed bridge"
+  },
+  "persistent_device_writes_during_packaging": false,
+  "published": true,
+  "live_installer_conflict_check": "refused existing original bridge without changes",
+  "repository": "https://github.com/m23spectrum/io-type68-linux"
+}

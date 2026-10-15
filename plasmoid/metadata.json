@@ -1,0 +1,15 @@
+{
+  "KPackageStructure": "Plasma/Applet",
+  "KPlugin": {
+    "Id": "io.github.io-type68.keyboard",
+    "Name": "IO Type 68 Magnetic",
+    "Description": "RGB and magnetic key settings",
+    "Icon": "input-keyboard",
+    "Version": "0.1.0",
+    "License": "GPL-3.0-or-later",
+    "Category": "Hardware"
+  },
+  "X-Plasma-API-Minimum-Version": "6.0",
+  "X-Plasma-API": "declarativeappletscript",
+  "X-Plasma-MainScript": "ui/main.qml"
+}

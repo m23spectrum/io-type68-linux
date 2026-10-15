@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "io-type68-driver"
+version = "0.1.0"
+description = "Linux userspace HID driver for IO by Red Square Type 68 Magnetic"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "GPL-3.0-or-later"
+classifiers = ["Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3"]
+[project.urls]
+Homepage = "https://github.com/m23spectrum/io-type68-linux"
+Issues = "https://github.com/m23spectrum/io-type68-linux/issues"
+Source = "https://github.com/m23spectrum/io-type68-linux"
+[project.scripts]
+io-type68 = "io_type68.cli:main"
+io-type68d = "io_type68.daemon:main"
+[tool.setuptools.packages.find]
+where = ["src"]
+[tool.setuptools.package-data]
+io_type68 = ["keys.json"]
