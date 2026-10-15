@@ -13,9 +13,11 @@ PlasmoidItem {
         onClicked: applet.expanded = !applet.expanded
     }
     fullRepresentation: PC.ScrollView {
-        implicitWidth: 620
-        implicitHeight: 650
+        id: view
+        implicitWidth: 680
+        implicitHeight: 800
+        padding: Kirigami.Units.largeSpacing
         contentWidth: availableWidth
-        IOKeyboardControls { width: parent.width }
+        IOKeyboardControls { width: view.availableWidth }
     }
 }

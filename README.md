@@ -22,6 +22,12 @@ Actuation depth is not spring force: software cannot change the mechanical force
 
 On firmware 1.37, choosing RGB selects custom/static mode. Arbitrary base colors for built-in animations are not confirmed. Macro/remap, SOCD, DKS, calibration, firmware flashing and factory reset are not implemented. PC motherboard/RAM RGB and monitor brightness are outside this keyboard package.
 
+## KDE widget preview
+
+![IO Type 68 Magnetic widget in KDE Plasma 6, with WASD selected and magnetic settings expanded](docs/images/kde-widget.png)
+
+Actual screenshot from Plasma 6.7.5, connected to the existing session bridge and a firmware 1.37 keyboard. Only the widget is captured; no desktop or private windows are included. Selecting WASD changes the UI selection without writing keyboard settings.
+
 ## Requirements
 
 Linux, Python 3.10+, `dbus-python`, PyGObject/GLib and a desktop session bus. KDE integration additionally needs Plasma 6, Kirigami and `org.kde.plasma.workspace.dbus` (the original integration was tested on Plasma 6.7.5).

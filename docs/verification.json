@@ -8,7 +8,7 @@
   },
   "isolated_dbus": "passed with simulated HID",
   "qml_controls": "instantiated offscreen",
-  "standalone_panel_ui": "not visually tested",
+  "standalone_panel_ui": "installed and visually checked on Plasma 6.7.5 using existing bridge; WASD selection checked without writes",
   "installer": "staged only",
   "wheel": "built",
   "live_cli": {
@@ -19,5 +19,6 @@
   "persistent_device_writes_during_packaging": false,
   "published": true,
   "live_installer_conflict_check": "refused existing original bridge without changes",
-  "repository": "https://github.com/m23spectrum/io-type68-linux"
+  "repository": "https://github.com/m23spectrum/io-type68-linux",
+  "screenshot": "docs/images/kde-widget.png"
 }

@@ -13,7 +13,7 @@ The protocol and frame generators in this release derive from that implementatio
 - Eight protocol unit tests passed: 19-chunk transfer for a 1024-byte read, report ID/header/final marker, rejection of unsupported command, rejection of invalid mixed requests without side effects, magnetic record/flag preservation, RGB slot preservation, dead-zone byte preservation, four volatile effect generators and CLI key selection.
 - Separate daemon passed an isolated real D-Bus test using an in-memory HID device: snapshot, magnetic write, error result, running effect, palette change while animating, stop/restore and Properties.Get.
 - The new CLI read the **existing installed bridge** and received connected=true, firmware=1.37. This confirms CLI/API interoperability, not an independent end-to-end hardware-write test of the new daemon.
-- `IOKeyboardControls.qml` instantiated using the host PySide6/Qt QML engine and installed KDE modules, offscreen, without QML errors. The standalone panel wrapper has not been installed or visually tested; manual Plasma panel validation remains before claiming a fully tested release UI.
+- `IOKeyboardControls.qml` instantiated using the host PySide6/Qt QML engine and installed KDE modules, offscreen, without QML errors. The standalone panel wrapper was subsequently installed on a real Plasma 6.7.5 panel and visually checked with the existing bridge. Lighting, the 68-key layout, WASD selection, actuation, RT and dead-zone controls were visible; no persistent keyboard writes were made during screenshot capture. The default popup was enlarged and padded to fit the advanced controls. The screenshot in docs/images is an actual capture of this widget only.
 - Five installer tests passed: staged install/upgrade/uninstall, conflict preservation, modified-file preservation, failure rollback and manifest path rejection.
 - Per-user installer staged files in a scratch directory; staged CLI `--help` ran successfully. Current desktop installation and panel were not replaced.
 - A wheel built successfully. CI definitions are included; current GitHub checks are visible in the repository Actions tab. Local checks do not substitute for hosted CI.
@@ -22,6 +22,6 @@ No new persistent hardware settings were written during release packaging. The e
 
 ## Remaining release checks
 
-Test the standalone widget on a fresh Plasma 6 session, install/uninstall on another machine with compatible hardware, and repeat readback checks for any new firmware before advertising support. A firmware version readout alone does not prove the same settings/protocol semantics.
+Test the standalone widget on another Plasma 6 session, install/uninstall on another machine with compatible hardware, and repeat readback checks for any new firmware before advertising support. A firmware version readout alone does not prove the same settings/protocol semantics.
 
 The updated one-command installer was additionally checked against the current desktop: it correctly refused the existing original bridge before any changes. Root package/udev operations were not executed during packaging. Those paths require a fresh-machine check.
