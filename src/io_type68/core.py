@@ -18,6 +18,34 @@ def checked_color(color):
     return color.lower()
 
 
+class SmoothBrightness:
+    """Scale saved per-key colors with volatile frames, without rewriting them."""
+    def __init__(self):
+        self.colors = None
+        self.level = None
+
+    def reset(self):
+        self.colors = None
+        self.level = None
+
+    def set(self, keyboard, percent):
+        if type(percent) is not int or not 0 <= percent <= 100:
+            raise ValueError('Brightness must be an integer from 0 to 100')
+        colors = self.colors
+        if colors is None:
+            led = keyboard.read(0x13, 16)
+            if led[0] not in (20, 128):
+                raise ValueError('Smooth brightness requires per-key color mode')
+            table = keyboard.read(0x14, 512)
+            keys = [key['value'] for row in json.loads((ROOT/'keys.json').read_text()) for key in row]
+            colors = [(key, bytes(table[key*4+1:key*4+4])) for key in keys]
+            if led[9] != 5:
+                apply(keyboard, {'kind': 'lighting', 'values': {'brightness': 5}})
+        frame = bytearray(v for key, rgb in colors for v in (key, *(round(c * percent / 100) for c in rgb)))
+        keyboard.transfer(0x32, len(frame), frame)
+        self.colors, self.level = colors, percent
+
+
 class KeyboardEffects:
     MODES = ('none', 'aurora', 'breathing', 'comet', 'rainbow')
 

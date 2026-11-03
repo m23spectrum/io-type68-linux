@@ -38,6 +38,13 @@ else:
         assert key['trigger']==.2 and key['rapid']
         invalid=json.loads(bridge.Apply(json.dumps({'kind':'deadzone','values':{'oops':2}})))
         assert not invalid['ok']
+        assert not json.loads(bridge.SmoothKeyboardBrightness(50))['ok']
+        assert json.loads(bridge.Apply(json.dumps({'kind':'lighting','values':{'color':'#123456'}})))['ok']
+        assert json.loads(bridge.SmoothKeyboardBrightness(35))['brightness'] == 35
+        assert not json.loads(bridge.SmoothKeyboardBrightness(101))['ok']
+        assert json.loads(bridge.Snapshot())['smoothKeyboardBrightness'] == 35
+        assert json.loads(bridge.Apply(json.dumps({'kind':'lighting','values':{'mode':11}})))['ok']
+        assert 'smoothKeyboardBrightness' not in json.loads(bridge.Snapshot())
         assert json.loads(bridge.Apply(json.dumps({'kind':'effect','values':{'mode':'rainbow'}})))['ok']
         time.sleep(.12)
         assert json.loads(bridge.Snapshot())['effect']['frames']>0

@@ -14,6 +14,9 @@ ColumnLayout {
     property bool advanced: false
     property var selected: []
     property var colorKeys: []
+    property int smoothKeyboardLevel: -1
+    property int pendingKeyboardLevel: -1
+    readonly property bool smoothKeyboardAvailable: root.lighting.mode === 128 && root.effect.mode === "none"
     readonly property bool available: state.connected === true
     readonly property var lighting: state.lighting || ({brightness: 0, mode: 1, color: "#ffffff", speed: 3, colorMode: 0, direction: 0})
     readonly property var effect: state.effect || ({mode: "none"})
@@ -40,9 +43,24 @@ ColumnLayout {
     }
     function apply(kind, values) {
         call("Apply", [JSON.stringify({kind: kind, values: values, selected: kind === "lighting" ? [] : selected})], function(result) {
-            if (result.ok) { root.state = result.state; root.message = kind === "effect" || root.effect.mode !== "none" ? "Программный эффект обновлён" : "Сохранено в клавиатуре ✓"; }
+            if (result.ok) { if (kind === "effect" || (kind === "lighting" && (values.mode !== undefined || values.color !== undefined || values.brightness !== undefined))) root.smoothKeyboardLevel = -1; root.state = result.state; root.message = kind === "effect" || root.effect.mode !== "none" ? "Программный эффект обновлён" : "Сохранено в клавиатуре ✓"; }
             else root.message = result.error;
         });
+    }
+    function sendKeyboardLevel() {
+        if (pendingKeyboardLevel < 0) return;
+        const level = pendingKeyboardLevel;
+        pendingKeyboardLevel = -1;
+        const reply = DBus.SessionBus.asyncCall({service: "local.io.Keyboard", path: "/local/io/Keyboard", iface: "local.io.Keyboard", member: "SmoothKeyboardBrightness", arguments: [level]});
+        let handled = false;
+        const finished = function() {
+            if (handled) return;
+            handled = true;
+            if (reply.isError) { root.message = reply.error.message; return; }
+            try { const result = JSON.parse(reply.value); if (!result.ok) root.message = result.error; }
+            catch(e) { root.message = String(e); }
+        };
+        if (reply.isFinished) finished(); else reply.finished.connect(finished);
     }
     function allKeys() { return (state.keys || []).reduce((a,row)=>a.concat(row.map(k=>k.value)), []); }
     function choose(values) {
@@ -71,7 +89,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Kirigami.Icon { source: "input-keyboard"; Layout.preferredWidth: 24; Layout.preferredHeight: 24 }
         PC.Label { text: "IO Type 68 Magnetic"; font.bold: true; Layout.fillWidth: true }
-        PC.Label { text: Math.round(root.lighting.brightness * 20) + "%" }
+        PC.Label { text: Math.round(root.smoothKeyboardLevel >= 0 ? root.smoothKeyboardLevel : (root.state.smoothKeyboardBrightness !== undefined ? root.state.smoothKeyboardBrightness : root.lighting.brightness * 20)) + "%" }
     }
     PC.ComboBox {
         Layout.fillWidth: true
@@ -87,14 +105,21 @@ ColumnLayout {
     PC.Slider {
         id: brightness
         Layout.fillWidth: true
-        from: 0; to: 5; stepSize: 1; snapMode: PC.Slider.SnapAlways
-        value: root.lighting.brightness
+        from: 0; to: 100; stepSize: root.smoothKeyboardAvailable ? 1 : 20; snapMode: PC.Slider.SnapAlways
+        value: root.smoothKeyboardLevel >= 0 ? root.smoothKeyboardLevel : (root.state.smoothKeyboardBrightness !== undefined ? root.state.smoothKeyboardBrightness : root.lighting.brightness * 20)
         enabled: root.available && !root.busy
         Accessible.name: "Яркость IO Type 68 Magnetic"
-        onMoved: if (!pressed) root.apply("lighting", {brightness: Math.round(value)})
+        onMoved: {
+            if (root.smoothKeyboardAvailable) {
+                root.smoothKeyboardLevel = Math.round(value);
+                root.pendingKeyboardLevel = root.smoothKeyboardLevel;
+                if (!keyboardTimer.running) keyboardTimer.start();
+            } else if (!pressed) root.apply("lighting", {brightness: Math.round(value / 20)});
+        }
         property bool dragStarted: false
-        onPressedChanged: { if (pressed) dragStarted = true; else if (dragStarted) { dragStarted = false; root.apply("lighting", {brightness: Math.round(value)}); } }
+        onPressedChanged: { if (pressed) dragStarted = true; else if (dragStarted) { dragStarted = false; if (root.smoothKeyboardAvailable) { keyboardTimer.stop(); root.sendKeyboardLevel(); } else root.apply("lighting", {brightness: Math.round(value / 20)}); } }
     }
+    Timer { id: keyboardTimer; interval: 55; onTriggered: root.sendKeyboardLevel() }
     RowLayout {
         Layout.fillWidth: true
         PC.ComboBox {
@@ -113,7 +138,7 @@ ColumnLayout {
         id: colorDialog
         title: "Цвет клавиатуры"
         onAccepted: root.call("Apply", [JSON.stringify({kind: "lighting", values: {color: selectedColor.toString()}, selected: root.colorKeys})], function(result) {
-            if (result.ok) { root.state = result.state; root.message = "Цвет сохранён в клавиатуре ✓"; }
+            if (result.ok) { root.smoothKeyboardLevel = -1; root.state = result.state; root.message = "Цвет сохранён в клавиатуре ✓"; }
             else root.message = result.error;
         })
     }

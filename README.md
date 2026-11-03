@@ -11,6 +11,7 @@ Linux driver and KDE Plasma 6 widget for **IO by Red Square Type 68 Magnetic**.
 ## Features
 
 - Keyboard brightness and lighting off.
+- Smooth percentage brightness for static per-key colors in the KDE widget.
 - Whole-keyboard and per-key RGB.
 - Built-in effects, speed and direction.
 - Aurora, breathing, comet and rainbow host effects, targeting up to 30 fps.
@@ -68,11 +69,12 @@ io-type68 effect none
 
 Key selection accepts `all`, `wasd`, DOM-style names (`KeyW`, `Escape`), display names or comma-separated names/slot IDs. Lighting mode IDs are listed in [protocol.md](docs/protocol.md).
 
-Settings are written immediately and checked by readback. `io-type68 refresh` returns the current settings as diagnostic JSON; it is not an importable backup.
+Device settings are written immediately and checked by readback. Smooth brightness uses volatile frames instead; `io-type68 refresh` returns the current settings as diagnostic JSON, not an importable backup.
 
 ## Limitations
 
 - Choosing RGB selects custom/static lighting. Arbitrary colors for built-in animations are not supported.
+- Smooth brightness is available in per-key color mode without a host effect. It sets the hardware brightness to maximum and scales saved colors using volatile frames; the intermediate level is not saved and may be lost on restart or reconnect. Built-in and host effects retain six hardware brightness levels.
 - Host effects require the service and must be selected again after a restart. Stopping an effect restores the previous built-in lighting mode.
 - Macros, remapping, SOCD/DKS, calibration and firmware updates are not implemented.
 

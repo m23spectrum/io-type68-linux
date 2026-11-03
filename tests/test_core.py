@@ -3,7 +3,7 @@ import json
 import struct
 import unittest
 from unittest.mock import patch
-from io_type68.core import Keyboard, KeyboardEffects, apply, ROOT, validate_request
+from io_type68.core import Keyboard, KeyboardEffects, SmoothBrightness, apply, ROOT, validate_request
 from io_type68.cli import key_ids
 
 class MemoryDevice:
@@ -17,6 +17,39 @@ class MemoryDevice:
         self.writes.append((write, bytes(payload))); self.blocks[read] = bytearray(payload)
 
 class CoreTests(unittest.TestCase):
+    def test_smooth_brightness_preserves_per_key_colors_and_uses_volatile_frames(self):
+        device = MemoryDevice()
+        device.blocks[0x13][0] = 20
+        device.blocks[0x13][9] = 5
+        for key, rgb in ((34, (200, 100, 50)), (49, (10, 20, 30))):
+            device.blocks[0x14][key*4:key*4+4] = bytes([key, *rgb])
+        original = bytes(device.blocks[0x14])
+        smooth = SmoothBrightness()
+        smooth.set(device, 50)
+        frame = device.writes[-1][1]
+        entries = {frame[i]: frame[i+1:i+4] for i in range(0, len(frame), 4)}
+        self.assertEqual(entries[34], bytes([100, 50, 25]))
+        self.assertEqual(entries[49], bytes([5, 10, 15]))
+        self.assertEqual(bytes(device.blocks[0x14]), original)
+        smooth.set(device, 100)
+        self.assertTrue(all(cmd == 0x32 for cmd, _ in device.writes))
+        self.assertEqual(smooth.level, 100)
+        smooth.reset()
+        self.assertIsNone(smooth.level)
+
+    def test_smooth_brightness_rejects_invalid_values_and_builtin_effects(self):
+        device = MemoryDevice(); smooth = SmoothBrightness()
+        for value in (-1, 101, True, 1.5):
+            with self.assertRaises(ValueError): smooth.set(device, value)
+        with self.assertRaises(ValueError): smooth.set(device, 50)
+        self.assertEqual(device.writes, [])
+
+    def test_smooth_brightness_sets_full_hardware_level_once(self):
+        device = MemoryDevice(); device.blocks[0x13][0] = 20; device.blocks[0x13][9] = 2
+        smooth = SmoothBrightness(); smooth.set(device, 50); smooth.set(device, 75)
+        self.assertEqual([cmd for cmd, _ in device.writes], [0x23, 0x32, 0x32])
+        self.assertEqual(device.blocks[0x13][9], 5)
+
     def test_magnetic_preserves_unselected_and_flag_bits(self):
         d = MemoryDevice(); original = bytes(d.blocks[0x17]); d.blocks[0x10][29]=2
         apply(d, {'kind':'keys','selected':[34], 'values':{'trigger':.1,'rapid':True,'press':.12,'release':3.2}})

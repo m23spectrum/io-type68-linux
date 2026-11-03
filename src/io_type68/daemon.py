@@ -2,7 +2,7 @@
 import json
 import signal
 import time
-from .core import Keyboard, KeyboardEffects, snapshot, apply, validate_request
+from .core import Keyboard, KeyboardEffects, SmoothBrightness, snapshot, apply, validate_request
 BUS = 'local.io.Keyboard'  # Compatible with the original KDE brightness extension.
 PATH = '/local/io/Keyboard'
 
@@ -16,6 +16,7 @@ def main():
     name = dbus.service.BusName(BUS, bus, do_not_queue=True)
     loop = GLib.MainLoop()
     effects = KeyboardEffects()
+    smooth = SmoothBrightness()
     cached = None
     source = None
 
@@ -31,6 +32,8 @@ def main():
             cached = None
             result = dict(connected=False, error=str(exc))
         result['effect'] = effects.status()
+        if result['connected'] and smooth.level is not None:
+            result['smoothKeyboardBrightness'] = smooth.level
         return result
 
     def pump():
@@ -69,6 +72,20 @@ def main():
         @dbus.service.method(BUS, in_signature='', out_signature='s')
         def RefreshKeys(self): return json.dumps(state(True))
 
+        @dbus.service.method(BUS, in_signature='i', out_signature='s')
+        def SmoothKeyboardBrightness(self, percent):
+            try:
+                if effects.mode != 'none':
+                    raise ValueError('Smooth brightness requires per-key color mode without a host effect')
+                with Keyboard() as keyboard:
+                    smooth.set(keyboard, int(percent))
+                return json.dumps({'ok': True, 'brightness': smooth.level})
+            except ValueError as exc:
+                return json.dumps({'ok': False, 'error': str(exc)})
+            except Exception as exc:
+                smooth.reset()
+                return json.dumps({'ok': False, 'error': str(exc)})
+
         @dbus.service.method(BUS, in_signature='s', out_signature='s')
         def Apply(self, text):
             nonlocal cached, source
@@ -79,6 +96,7 @@ def main():
                 kind = request['kind']
                 if kind == 'effect':
                     effects.configure(request['values'])
+                    smooth.reset()
                     if source is None and effects.mode != 'none': source = GLib.timeout_add(1, pump)
                 else:
                     patch = dict(request['values'])
@@ -91,6 +109,8 @@ def main():
                     if patch:
                         with Keyboard() as keyboard: apply(keyboard, dict(request, values=patch))
                         cached = None
+                        if kind == 'lighting' and any(key in patch for key in ('mode', 'color', 'brightness')):
+                            smooth.reset()
                         if effects.saved_led is not None and kind == 'lighting' and 'brightness' in patch:
                             effects.saved_led[9] = patch['brightness']
                 result = state(kind in ('keys', 'deadzone'))
