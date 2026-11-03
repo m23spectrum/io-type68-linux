@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 — 2026-11-04
+
+- Combine the keyboard controls with the KDE Plasma Brightness & Color interface, including display brightness, Night Light and theme controls.
+- Add English and Russian keyboard interface text and hide the native keyboard brightness control when its maximum is zero.
+- Add a translated and redacted illustrative screenshot.
+
+This integration uses Plasma's private brightness-control module and is adapted from a local integration exercised on Plasma 6.7.5; the packaged build and other versions remain unverified. PC lighting and monitor-specific optimizations from the user's local setup are not included.
+
 ## 0.2.0 — 2026-11-04
 
 - Add a percentage brightness slider for per-key static colors in the Plasma widget.

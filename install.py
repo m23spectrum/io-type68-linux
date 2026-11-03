@@ -169,7 +169,7 @@ def install(args, home):
     if args.no_udev: print('USB permissions were skipped; configure packaging/70-io-type68.rules manually if needed.')
     if not shutil.which('plasmashell'):
         print('KDE Plasma was not detected. The CLI/service are installed; the widget requires Plasma 6, Kirigami and its workspace D-Bus QML module.')
-    print('KDE: Add Widgets → IO Type 68 Magnetic. CLI: ~/.local/bin/io-type68')
+    print('KDE: Add Widgets → Brightness & Color — IO Type 68. CLI: ~/.local/bin/io-type68')
 
 
 def uninstall(args, home):

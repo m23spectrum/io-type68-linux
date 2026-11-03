@@ -2,11 +2,13 @@
 
 [![Tests](https://github.com/m23spectrum/io-type68-linux/actions/workflows/test.yml/badge.svg)](https://github.com/m23spectrum/io-type68-linux/actions/workflows/test.yml) ![License: GPL v3+](https://img.shields.io/badge/license-GPLv3%2B-blue) ![Platform: Linux](https://img.shields.io/badge/platform-Linux-blue)
 
-Linux driver and KDE Plasma 6 widget for **IO by Red Square Type 68 Magnetic**.
+Linux driver and KDE Plasma 6 Brightness & Color widget for **IO by Red Square Type 68 Magnetic**.
 
 [Русский](docs/README.ru.md) · [Protocol](docs/protocol.md) · [Tests](docs/verification.md) · [KDE integration](docs/kde.md)
 
-![IO Type 68 Magnetic KDE widget](docs/images/kde-widget.png)
+![Brightness & Color widget with IO Type 68 controls](docs/images/kde-widget.png)
+
+*AI-edited illustration translated to English; the personal PC-lighting section has been blurred and is not included in this project.*
 
 ## Features
 
@@ -18,11 +20,11 @@ Linux driver and KDE Plasma 6 widget for **IO by Red Square Type 68 Magnetic**.
 - Actuation depth **0.10–3.20 mm** for all keys, WASD or individual keys.
 - Rapid Trigger with separate press/release thresholds.
 - Top and bottom dead zones, **0–0.50 mm**.
-- KDE widget and command-line control.
+- A combined KDE Brightness & Color widget and command-line control.
 
 ## Compatibility
 
-Linux, Python 3.10+, `dbus-python`, PyGObject/GLib and a desktop session bus. The widget requires KDE Plasma 6, Kirigami and `org.kde.plasma.workspace.dbus`.
+Linux, Python 3.10+, `dbus-python`, PyGObject/GLib and a desktop session bus. The widget uses KDE Plasma 6's private brightness-control QML module and is tested with Plasma 6.7.5; compatibility with other Plasma releases is unverified.
 
 Supported device: USB `0c45:0256`, firmware **1.37**. Support is experimental; other firmware versions are unverified.
 
@@ -36,7 +38,7 @@ python3 install.py
 
 Run as your desktop user, **without sudo**. The installer requests sudo for missing dependencies and the USB-access rule, installs the driver and widget, then starts the service. On immutable distributions, missing host dependencies must be installed through the distribution's package workflow.
 
-Add **IO Type 68 Magnetic** through KDE's “Add Widgets”. Reconnect the keyboard if USB access is not available yet.
+Add **Brightness & Color — IO Type 68** through KDE's “Add Widgets”, or enable it in the system tray's entries. The original KDE Brightness & Color entry can be disabled in system tray settings to avoid duplicate icons. Reconnect the keyboard if USB access is not available yet.
 
 Installer options:
 

@@ -2,14 +2,17 @@
   "KPackageStructure": "Plasma/Applet",
   "KPlugin": {
     "Id": "io.github.io-type68.keyboard",
-    "Name": "IO Type 68 Magnetic",
-    "Description": "RGB and magnetic key settings",
-    "Icon": "input-keyboard",
-    "Version": "0.2.0",
+    "Name": "Brightness & Color — IO Type 68",
+    "Description": "Display brightness, Night Light, appearance and IO Type 68 controls",
+    "Icon": "brightness-high",
+    "Version": "0.3.0",
     "License": "GPL-3.0-or-later",
-    "Category": "Hardware"
+    "Category": "Hardware",
+    "Name[ru]": "Яркость и цвет — IO Type 68"
   },
   "X-Plasma-API-Minimum-Version": "6.0",
   "X-Plasma-API": "declarativeappletscript",
-  "X-Plasma-MainScript": "ui/main.qml"
+  "X-Plasma-MainScript": "ui/main.qml",
+  "X-Plasma-NotificationAreaCategory": "Hardware",
+  "X-Plasma-DBusActivationService": "org.kde.Solid.PowerManagement"
 }
