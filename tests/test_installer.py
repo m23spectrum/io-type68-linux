@@ -22,6 +22,10 @@ class InstallerTests(unittest.TestCase):
             home=Path(temp)
             installer.install(args(home),home)
             self.assertTrue((home/'etc/udev/rules.d/70-io-type68.rules').is_file())
+            widget = home/'.local/share/plasma/plasmoids/io.github.io-type68.keyboard'
+            self.assertEqual(json.loads((widget/'metadata.json').read_text())['X-Plasma-NotificationAreaCategory'], 'Hardware')
+            for name in ('main.qml', 'PopupDialog.qml', 'IOKeyboardControls.qml', 'NightLightItem.qml', 'DarkModeItem.qml'):
+                self.assertTrue((widget/'contents/ui'/name).is_file(), name)
             self.assertTrue(json.loads(installer.manifest_path(home).read_text())['files'])
             help_result=subprocess.run([str(home/'.local/bin/io-type68'),'--help'],capture_output=True,text=True)
             self.assertEqual(help_result.returncode,0,help_result.stderr)
